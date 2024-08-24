@@ -2,17 +2,20 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
+url = 'https://www.terra.com.br/esportes/futebol/brasileiro-serie-a/tabela/'
+url_gazeta = 'https://www.gazetaesportiva.com/campeonatos/brasileiro-serie-a/'
+
 # Requisição da página da Terra.com.br com a tabela do campeonato
-pagina = requests.get('https://www.terra.com.br/esportes/futebol/brasileiro-serie-a/tabela/')
+pagina = requests.get(url)
 
 # Convertendo em HTML o conteúdo
 soup = BeautifulSoup(pagina.content, 'html.parser')
 
 # Pegando todos elementos dentro das tags TR
-linhas = soup.find_all('tr')
+classificacao = soup.find_all('tr')
 
 # Removendo a primeira linha (cabeçalho da tabela)
-linhas.pop(0)
+classificacao.pop(0)
 
 # Pegando as informações e passando para list
 
@@ -26,12 +29,12 @@ dados_classificacao = list(map(lambda time: {
     'Derrotas': time.select('td[title="Derrotas"]')[0].text,
     'Gols pró': time.select('td[title="Gols Pró"]')[0].text,
     'Gols contra': time.select('td[title="Gols Contra"]')[0].text
-}, linhas))
+}, classificacao))
 
 # Transformando as listas em um dataFrame 
 df = pd.DataFrame(dados_classificacao)
 
-# Fazendo as transformações
+# Fazendo as transformações necessárias
 df['Time'] = df['Time'].str.replace(' >>\n', '', regex=False)
 df['Posição'] = df['Posição'].map(int)
 df['Gols pró'] = df['Gols pró'].map(int)
@@ -58,3 +61,24 @@ def resumo_time(nomeTime):
 {time['Posição']} º - {time['Pontuação']} pontos em {time['Jogos']} jogos ({time['Vitórias']}V/{time['Empates']}E/{time['Derrotas']}D) - {time['Aproveitamento']} % de aproveitamento
 Gols pró: {time['Gols pró']} - Gols contra: {time['Gols contra']} - Saldo de gols: {time['Saldo gols']}
 Ranking ataque: {time['Ranking ataque']} - Ranking defesa: {time['Ranking defesa']}"""
+
+# Requisição da página da Terra.com.br com a tabela do campeonato
+pagina = requests.get(url_gazeta)
+
+# Convertendo em HTML o conteúdo
+soup = BeautifulSoup(pagina.content, 'html.parser')
+
+# Extraindo todos os jogos
+jogos = soup.find_all('li', class_='table__games__item')
+
+dados_jogos = list(map(lambda jogo: {
+    'Mandante': jogo.select('a')[0].text,
+    'Placar mandante': jogo.select('span')[5].text,
+    'Visitante': jogo.select('a')[4].text,
+    'Placar visitante': jogo.select('span')[7].text,
+    'Data': jogo.select('span')[0].text
+}, jogos))
+
+df = pd.DataFrame(dados_jogos)
+
+print(df)
