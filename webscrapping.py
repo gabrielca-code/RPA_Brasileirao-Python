@@ -2,7 +2,6 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-url = 'https://www.terra.com.br/esportes/futebol/brasileiro-serie-a/tabela/'
 url_gazeta = 'https://www.gazetaesportiva.com/campeonatos/brasileiro-serie-a/'
 
 # Requisição da página da Terra.com.br com a tabela do campeonato
