@@ -36,6 +36,8 @@ df2['Resultado'] = df2.apply(
     axis=1
 )
 
+df2 = df2.sort_values(by='Data', ascending=False)
+
 # Extração e transformação dos dados da classificação
 # Pegando todos elementos dentro das tags TR
 classificacao = soup.find_all('tr')
@@ -84,8 +86,6 @@ df['Jogos visitante'] = df['Time'].apply(lambda time: len(df2[(df2['Visitante'] 
 df['Vitórias visitante'] = df['Time'].apply(lambda time: len(df2[(df2['Resultado'] == 'Visitante') & (df2['Visitante'] == time)]))
 df['Empates visitante'] = df['Time'].apply(lambda time: len(df2[(df2['Resultado'] == 'Empate') & (df2['Visitante'] == time)]))
 df['Aproveitamento visitante'] = ((df['Vitórias visitante'] * 3 + df['Empates visitante']) / (df['Jogos visitante'] * 3) * 100).round(2)
-
-df2 = df2.sort_values(by='Data', ascending=False)
 
 def ultimos_jogos(time):
     ultimos_jogos = df2[(df2['Resultado'] != 'Jogo não realizado') & ((df2['Mandante'] == time) | (df2['Visitante'] == time))]
