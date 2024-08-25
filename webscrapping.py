@@ -101,7 +101,35 @@ def ultimos_jogos(time):
 
     return string_ultimos_jogos
 
+def ultimos_jogos_mandante(time):
+    ultimos_jogos = df2[(df2['Resultado'] != 'Jogo não realizado') & ((df2['Mandante'] == time))]
+    string_ultimos_jogos = ''
+    quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
+    i = 5
+
+    for i in range(quantidade_ultimos_jogos, 0, -1):
+        print(i)
+        resultado = ultimos_jogos.iloc[i-1]['Resultado']
+        string_ultimos_jogos = string_ultimos_jogos + ('E' if resultado == 'Empate' else 'V' if resultado == 'Mandante' else 'D')
+
+    return string_ultimos_jogos
+
+def ultimos_jogos_visitante(time):
+    ultimos_jogos = df2[(df2['Resultado'] != 'Jogo não realizado') & ((df2['Visitante'] == time))]
+    string_ultimos_jogos = ''
+    quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
+    i = 5
+
+    for i in range(quantidade_ultimos_jogos, 0, -1):
+        print(i)
+        resultado = ultimos_jogos.iloc[i-1]['Resultado']
+        string_ultimos_jogos = string_ultimos_jogos + ('E' if resultado == 'Empate' else 'V' if resultado == 'Visitante' else 'D')
+
+    return string_ultimos_jogos
+
 df['Ultimos jogos'] = df['Time'].apply(ultimos_jogos)
+df['Ultimos jogos - Mandante'] = df['Time'].apply(ultimos_jogos_mandante)
+df['Ultimos jogos - Visitante'] = df['Time'].apply(ultimos_jogos_visitante)
 
 # Trazendo as informações
 def resumo_time(nomeTime):
