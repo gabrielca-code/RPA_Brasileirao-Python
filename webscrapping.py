@@ -161,6 +161,39 @@ def ultimos_jogos_gols_visitante(time):
 
     return quantidade_gols
 
+def ultimos_jogos_golsc(time):
+    ultimos_jogos = df2[(df2['Resultado'] != 'Jogo não realizado') & ((df2['Mandante'] == time) | (df2['Visitante'] == time))]
+    quantidade_gols = 0
+    quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
+    i = 0
+
+    for i in range(quantidade_ultimos_jogos):
+        quantidade_gols = quantidade_gols + (ultimos_jogos.iloc[i]['Placar visitante'] if ultimos_jogos.iloc[i]['Mandante'] == time else ultimos_jogos.iloc[i]['Placar mandante'])
+
+    return quantidade_gols
+
+def ultimos_jogos_golsc_mandante(time):
+    ultimos_jogos = df2[(df2['Resultado'] != 'Jogo não realizado') & ((df2['Mandante'] == time))]
+    quantidade_gols = 0
+    quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
+    i = 0
+
+    for i in range(quantidade_ultimos_jogos):
+        quantidade_gols = quantidade_gols + ultimos_jogos.iloc[i]['Placar visitante']
+
+    return quantidade_gols
+
+def ultimos_jogos_golsc_visitante(time):
+    ultimos_jogos = df2[(df2['Resultado'] != 'Jogo não realizado') & ((df2['Visitante'] == time))]
+    quantidade_gols = 0
+    quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
+    i = 0
+
+    for i in range(quantidade_ultimos_jogos):
+        quantidade_gols = quantidade_gols + ultimos_jogos.iloc[i]['Placar mandante']
+
+    return quantidade_gols
+
 df['Ultimos jogos'] = df['Time'].apply(ultimos_jogos)
 df['Ultimos jogos - Mandante'] = df['Time'].apply(ultimos_jogos_mandante)
 df['Ultimos jogos - Visitante'] = df['Time'].apply(ultimos_jogos_visitante)
@@ -168,6 +201,10 @@ df['Ultimos jogos - Visitante'] = df['Time'].apply(ultimos_jogos_visitante)
 df['Gols ultimos jogos'] = df['Time'].apply(ultimos_jogos_gols)
 df['Gols ultimos jogos - Mandante'] = df['Time'].apply(ultimos_jogos_gols_mandante)
 df['Gols ultimos jogos - Visitante'] = df['Time'].apply(ultimos_jogos_gols_visitante)
+
+df['Gols contra ultimos jogos'] = df['Time'].apply(ultimos_jogos_golsc)
+df['Gols contra ultimos jogos - Mandante'] = df['Time'].apply(ultimos_jogos_golsc_mandante)
+df['Gols contra ultimos jogos - Visitante'] = df['Time'].apply(ultimos_jogos_golsc_visitante)
 
 # Trazendo as informações
 def resumo_time(nomeTime):
@@ -180,17 +217,17 @@ Ranking ataque: {time['Ranking ataque']} - Ranking defesa: {time['Ranking defesa
 
 Restrospecto últimos 5 jogos
 Últimos jogos: {time['Ultimos jogos']}
-Gols pró: {time['Gols ultimos jogos']}
+Gols pró: {time['Gols ultimos jogos']} - Gols contra: {time['Gols contra ultimos jogos']}
 
 Retrospecto mandante:
 {time['Jogos mandante']} jogos ({time['Vitórias mandante']}V/{time['Empates mandante']}E/{time['Derrotas mandante']}D) - {time['Aproveitamento mandante']}
 Últimos jogos: {time['Ultimos jogos - Mandante']}
-Gols pró: {time['Gols ultimos jogos - Mandante']}
+Gols pró: {time['Gols ultimos jogos - Mandante']} - Gols contra: {time['Gols contra ultimos jogos - Mandante']}
 
 Retrospecto visitante:
 {time['Jogos visitante']} jogos ({time['Vitórias visitante']}V/{time['Empates visitante']}E/{time['Derrotas visitante']}D) - {time['Aproveitamento visitante']}
 Últimos jogos: {time['Ultimos jogos - Visitante']}
-Gols pró: {time['Gols ultimos jogos - Visitante']}
+Gols pró: {time['Gols ultimos jogos - Visitante']} - Gols contra: {time['Gols contra ultimos jogos - Visitante']}
 
 """
 
