@@ -1,10 +1,11 @@
 # Projeto Brasileirão
 
 Este projeto tem como objetivo principal reforçar conhecimentos de programação na linguagem Python e em algumas de suas bibliotecas mais comumente usadas. Essas bibliotecas serão utilizadas para agilizar os processos de extração, transformação e apresentação dos dados.
+Com isso, surgiu a ideia de realizar uma automação para análise de dados da atual temporada do campeonato brasileiro de futebol série A, aonde conseguiria de maneira "simples" exercitar a base dos conceitos de scraping, tratamento e transformações de dados e interface interativa com o usuário.
 
 ## Coleta de Dados
 
-Os dados serão coletados via web scraping, utilizando o site da Gazeta Esportiva como fonte. Por meio da biblioteca `Requests`, o conteúdo da página que contém a tabela de classificação e jogos do Brasileirão será capturado. Em seguida, a biblioteca `BeautifulSoup` será utilizada para converter o conteúdo para HTML, possibilitando a extração dos dados de ambas as tabelas.
+Os dados serão coletados via web scraping, utilizando o site da Gazeta Esportiva como fonte. Por meio da biblioteca `Requests`, o conteúdo da página que contém a tabela de classificação e jogos do Brasileirão será capturado. Em seguida, a biblioteca `BeautifulSoup` será utilizada para obter conteúdos específicos do HTML da requisição, possibilitando a extração dos dados da classificação dos times e de todos os jogos do campeonato.
 
 ## Processamento de Dados
 
