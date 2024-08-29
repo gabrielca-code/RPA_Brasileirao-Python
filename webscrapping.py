@@ -5,41 +5,40 @@ from bs4 import BeautifulSoup
 dfClassificacao = pd.DataFrame()
 dfJogos = pd.DataFrame()
 
-class brasileirao():
+class Brasileirao():
 
     def __init__(self):
-        paginaRequisicao = requisicaoPagina('https://www.gazetaesportiva.com/campeonatos/brasileiro-serie-a/')
+        paginaRequisicao = self.requisicaoPagina('https://www.gazetaesportiva.com/campeonatos/brasileiro-serie-a/')
         if paginaRequisicao.status_code == 200:
-            conteudoHTMLPagina = converterRequisicaoParaHTML(paginaRequisicao)
+            conteudoHTMLPagina = self.converterRequisicaoParaHTML(paginaRequisicao)
 
-            htmlJogos = extrairJogosHTML(conteudoHTMLPagina)
-            dictJogos = criarDicionarioJogos(htmlJogos)
-            dfJogos = converterDicionarioEmDataFrame(dictJogos)
-            print(dfJogos)
-            dfJogos = transformacoesDataFrameJogos(dfJogos)
+            htmlJogos = self.extrairJogosHTML(conteudoHTMLPagina)
+            dictJogos = self.criarDicionarioJogos(htmlJogos)
+            self.dfJogos = self.converterDicionarioEmDataFrame(dictJogos)
+            self.dfJogos = self.transformacoesDataFrameJogos(self.dfJogos)
 
-            htmlClassificacao = extrairClassificacaoHTML(conteudoHTMLPagina)
-            dictClassificacao = criarDicionarioClassificacao(htmlClassificacao)
-            dfClassificacao = converterDicionarioEmDataFrame(dictClassificacao)
-            dfClassificacao = transformacoesDataFrameClassificacao(dfClassificacao)
+            htmlClassificacao = self.extrairClassificacaoHTML(conteudoHTMLPagina)
+            dictClassificacao = self.criarDicionarioClassificacao(htmlClassificacao)
+            self.dfClassificacao = self.converterDicionarioEmDataFrame(dictClassificacao)
+            self.dfClassificacao = self.transformacoesDataFrameClassificacao(self.dfClassificacao)
 
-            dfClassificacao = transformacoesInterDataFrames(dfClassificacao, dfJogos)
+            self.dfClassificacao = self.transformacoesInterDataFrames(self.dfClassificacao, self.dfJogos)
 
-            print(resumo_geral(procurarTime(dfClassificacao, 'Fluminense')))
-            print(resumo_geral(procurarTime(dfClassificacao, 'São Paulo')))
+            print(self.resumo_geral(self.procurarTime(self.dfClassificacao, 'Fluminense')))
+            print(self.resumo_geral(self.procurarTime(self.dfClassificacao, 'São Paulo')))
         else:
             print(f"Erro, código {paginaRequisicao.status_code}")    
 
-    def requisicaoPagina(url):
+    def requisicaoPagina(self, url):
         return requests.get(url)
         
-    def converterRequisicaoParaHTML(pagina) :
+    def converterRequisicaoParaHTML(self, pagina) :
         return BeautifulSoup(pagina.content, 'html.parser')
 
-    def extrairJogosHTML(html):
+    def extrairJogosHTML(self, html):
         return html.find_all('li', class_='table__games__item')
 
-    def criarDicionarioJogos(jogos):
+    def criarDicionarioJogos(self, jogos):
         return list(map(lambda jogo: {
             'Mandante': jogo.select('a')[0]['title'],
             'Placar mandante': jogo.select('span')[5].text,
@@ -48,10 +47,10 @@ class brasileirao():
             'Data': jogo.select('span')[0].text
         }, jogos))
 
-    def converterDicionarioEmDataFrame(dicionario):
+    def converterDicionarioEmDataFrame(self, dicionario):
         return pd.DataFrame(dicionario)
 
-    def transformacoesDataFrameJogos(dfJogos):
+    def transformacoesDataFrameJogos(self, dfJogos):
         dfJogos['Placar mandante'] = dfJogos['Placar mandante'].apply(lambda cell: int(cell) if pd.notna(cell) and cell.strip() != '' and cell.isdigit() else cell)
         dfJogos['Placar visitante'] = dfJogos['Placar visitante'].apply(lambda cell: int(cell) if pd.notna(cell) and cell.strip() != '' and cell.isdigit() else cell)
         dfJogos['Data'] = dfJogos['Data'].apply(lambda cell: cell.split('\n')[1] if pd.notna(cell) and cell.strip() != '' and len(cell.split('\n')) > 1 else cell)
@@ -61,12 +60,12 @@ class brasileirao():
         dfJogos = dfJogos.sort_values(by='Data', ascending=False)
         return dfJogos
 
-    def extrairClassificacaoHTML(html):
+    def extrairClassificacaoHTML(self, html):
         classificacao = html.find_all('tr')
         classificacao.pop(0)
         return classificacao
 
-    def criarDicionarioClassificacao(classificacao):
+    def criarDicionarioClassificacao(self, classificacao):
         return list(map(lambda time: {
             'Posição': time.select('.table__position')[0].text,
             'Time': time.select('.team-link')[0]['title'],
@@ -79,7 +78,7 @@ class brasileirao():
             'Gols contra': time.select('.table__stats')[6].text,
         }, classificacao))
 
-    def transformacoesDataFrameClassificacao(dfClassificacao):
+    def transformacoesDataFrameClassificacao(self, dfClassificacao):
         dfClassificacao['Posição'] = dfClassificacao['Posição'].map(int)
         dfClassificacao['Gols pró'] = dfClassificacao['Gols pró'].map(int)
         dfClassificacao['Gols contra'] = dfClassificacao['Gols contra'].map(int)
@@ -96,8 +95,8 @@ class brasileirao():
         dfClassificacao = dfClassificacao.sort_values(by='Posição').reset_index(drop=True)
         return dfClassificacao
 
-    def ultimos_jogos(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Mandante'] == time) | (dfJogos['Visitante'] == time))]
+    def ultimos_jogos(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Mandante'] == time) | (self.dfJogos['Visitante'] == time))]
         string_ultimos_jogos = ''
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 5
@@ -109,8 +108,8 @@ class brasileirao():
 
         return string_ultimos_jogos
 
-    def ultimos_jogos_mandante(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Mandante'] == time))]
+    def ultimos_jogos_mandante(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Mandante'] == time))]
         string_ultimos_jogos = ''
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 5
@@ -121,8 +120,8 @@ class brasileirao():
 
         return string_ultimos_jogos
 
-    def ultimos_jogos_visitante(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Visitante'] == time))]
+    def ultimos_jogos_visitante(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Visitante'] == time))]
         string_ultimos_jogos = ''
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 5
@@ -133,8 +132,8 @@ class brasileirao():
 
         return string_ultimos_jogos
 
-    def ultimos_jogos_gols(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Mandante'] == time) | (dfJogos['Visitante'] == time))]
+    def ultimos_jogos_gols(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Mandante'] == time) | (self.dfJogos['Visitante'] == time))]
         quantidade_gols = 0
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 0
@@ -144,8 +143,8 @@ class brasileirao():
 
         return quantidade_gols
 
-    def ultimos_jogos_gols_mandante(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Mandante'] == time))]
+    def ultimos_jogos_gols_mandante(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Mandante'] == time))]
         quantidade_gols = 0
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 0
@@ -155,8 +154,8 @@ class brasileirao():
 
         return quantidade_gols
 
-    def ultimos_jogos_gols_visitante(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Visitante'] == time))]
+    def ultimos_jogos_gols_visitante(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Visitante'] == time))]
         quantidade_gols = 0
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 0
@@ -166,8 +165,8 @@ class brasileirao():
 
         return quantidade_gols
 
-    def ultimos_jogos_golsc(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Mandante'] == time) | (dfJogos['Visitante'] == time))]
+    def ultimos_jogos_golsc(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Mandante'] == time) | (self.dfJogos['Visitante'] == time))]
         quantidade_gols = 0
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 0
@@ -177,8 +176,8 @@ class brasileirao():
 
         return quantidade_gols
 
-    def ultimos_jogos_golsc_mandante(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Mandante'] == time))]
+    def ultimos_jogos_golsc_mandante(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Mandante'] == time))]
         quantidade_gols = 0
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 0
@@ -188,8 +187,8 @@ class brasileirao():
 
         return quantidade_gols
 
-    def ultimos_jogos_golsc_visitante(time):
-        ultimos_jogos = dfJogos[(dfJogos['Resultado'] != 'Jogo não realizado') & ((dfJogos['Visitante'] == time))]
+    def ultimos_jogos_golsc_visitante(self, time):
+        ultimos_jogos = self.dfJogos[(self.dfJogos['Resultado'] != 'Jogo não realizado') & ((self.dfJogos['Visitante'] == time))]
         quantidade_gols = 0
         quantidade_ultimos_jogos = 5 if len(ultimos_jogos) >= 5 else len(ultimos_jogos)
         i = 0
@@ -199,7 +198,7 @@ class brasileirao():
 
         return quantidade_gols
 
-    def transformacoesInterDataFrames(dfClassificacao, dfJogos):
+    def transformacoesInterDataFrames(self, dfClassificacao, dfJogos):
         dfClassificacao['Jogos mandante'] = dfClassificacao['Time'].apply(lambda time: len(dfJogos[(dfJogos['Mandante'] == time) & (dfJogos['Resultado'] != 'Jogo não realizado')]))
         dfClassificacao['Vitórias mandante'] = dfClassificacao['Time'].apply(lambda time: len(dfJogos[(dfJogos['Resultado'] == 'Mandante') & (dfJogos['Mandante'] == time)]))
         dfClassificacao['Empates mandante'] = dfClassificacao['Time'].apply(lambda time: len(dfJogos[(dfJogos['Resultado'] == 'Empate') & (dfJogos['Mandante'] == time)]))
@@ -212,23 +211,23 @@ class brasileirao():
         dfClassificacao['Derrotas visitante'] = dfClassificacao['Time'].apply(lambda time: len(dfJogos[(dfJogos['Resultado'] == 'Mandante') & (dfJogos['Visitante'] == time)]))
         dfClassificacao['Aproveitamento visitante'] = ((dfClassificacao['Vitórias visitante'] * 3 + dfClassificacao['Empates visitante']) / (dfClassificacao['Jogos visitante'] * 3) * 100).round(2)
 
-        dfClassificacao['Ultimos jogos'] = dfClassificacao['Time'].apply(ultimos_jogos)
-        dfClassificacao['Ultimos jogos - Mandante'] = dfClassificacao['Time'].apply(ultimos_jogos_mandante)
-        dfClassificacao['Ultimos jogos - Visitante'] = dfClassificacao['Time'].apply(ultimos_jogos_visitante)
+        dfClassificacao['Ultimos jogos'] = dfClassificacao['Time'].apply(self.ultimos_jogos)
+        dfClassificacao['Ultimos jogos - Mandante'] = dfClassificacao['Time'].apply(self.ultimos_jogos_mandante)
+        dfClassificacao['Ultimos jogos - Visitante'] = dfClassificacao['Time'].apply(self.ultimos_jogos_visitante)
 
-        dfClassificacao['Gols ultimos jogos'] = dfClassificacao['Time'].apply(ultimos_jogos_gols)
-        dfClassificacao['Gols ultimos jogos - Mandante'] = dfClassificacao['Time'].apply(ultimos_jogos_gols_mandante)
-        dfClassificacao['Gols ultimos jogos - Visitante'] = dfClassificacao['Time'].apply(ultimos_jogos_gols_visitante)
+        dfClassificacao['Gols ultimos jogos'] = dfClassificacao['Time'].apply(self.ultimos_jogos_gols)
+        dfClassificacao['Gols ultimos jogos - Mandante'] = dfClassificacao['Time'].apply(self.ultimos_jogos_gols_mandante)
+        dfClassificacao['Gols ultimos jogos - Visitante'] = dfClassificacao['Time'].apply(self.ultimos_jogos_gols_visitante)
 
-        dfClassificacao['Gols contra ultimos jogos'] = dfClassificacao['Time'].apply(ultimos_jogos_golsc)
-        dfClassificacao['Gols contra ultimos jogos - Mandante'] = dfClassificacao['Time'].apply(ultimos_jogos_golsc_mandante)
-        dfClassificacao['Gols contra ultimos jogos - Visitante'] = dfClassificacao['Time'].apply(ultimos_jogos_golsc_visitante)
+        dfClassificacao['Gols contra ultimos jogos'] = dfClassificacao['Time'].apply(self.ultimos_jogos_golsc)
+        dfClassificacao['Gols contra ultimos jogos - Mandante'] = dfClassificacao['Time'].apply(self.ultimos_jogos_golsc_mandante)
+        dfClassificacao['Gols contra ultimos jogos - Visitante'] = dfClassificacao['Time'].apply(self.ultimos_jogos_golsc_visitante)
         return dfClassificacao
 
-    def procurarTime(dfClassificacao, nomeTime):
+    def procurarTime(self, dfClassificacao, nomeTime):
         return dfClassificacao[dfClassificacao['Time'] == nomeTime].iloc[0]
 
-    def apresentarRetrospectoGeral(time):
+    def apresentarRetrospectoGeral(self, time):
         return f"""{time['Time']}
     Retrospecto geral:
     {time['Posição']} º - {time['Pontuação']} pontos em {time['Jogos']} jogos ({time['Vitórias']}V/{time['Empates']}E/{time['Derrotas']}D) - {time['Aproveitamento']} % de aproveitamento
@@ -237,14 +236,14 @@ class brasileirao():
 
     """
 
-    def apresentarRetrospectoGeralUltimos5Jogos(time):
+    def apresentarRetrospectoGeralUltimos5Jogos(self,time):
         return f"""Restrospecto últimos 5 jogos
     Últimos jogos: {time['Ultimos jogos']}
     Gols pró: {time['Gols ultimos jogos']} - Gols contra: {time['Gols contra ultimos jogos']}
 
     """
 
-    def apresentarRetrospectoGeralUltimos5JogosMandante(time):
+    def apresentarRetrospectoGeralUltimos5JogosMandante(self, time):
         return f"""Retrospecto mandante:
     {time['Jogos mandante']} jogos ({time['Vitórias mandante']}V/{time['Empates mandante']}E/{time['Derrotas mandante']}D) - {time['Aproveitamento mandante']}
     Últimos jogos: {time['Ultimos jogos - Mandante']}
@@ -252,7 +251,7 @@ class brasileirao():
 
     """
 
-    def apresentarRetrospectoGeralUltimos5JogosVisitante(time):
+    def apresentarRetrospectoGeralUltimos5JogosVisitante(self, time):
         return f"""Retrospecto visitante:
     {time['Jogos visitante']} jogos ({time['Vitórias visitante']}V/{time['Empates visitante']}E/{time['Derrotas visitante']}D) - {time['Aproveitamento visitante']}
     Últimos jogos: {time['Ultimos jogos - Visitante']}
@@ -260,7 +259,5 @@ class brasileirao():
 
     """
 
-    def resumo_geral(time):
-        return self.apresentarRetrospectoGeral(time) + apresentarRetrospectoGeralUltimos5Jogos(time) + apresentarRetrospectoGeralUltimos5JogosMandante(time) + apresentarRetrospectoGeralUltimos5JogosVisitante(time)
-    
-    
+    def resumo_geral(self, time):
+        return self.apresentarRetrospectoGeral(time) + self.apresentarRetrospectoGeralUltimos5Jogos(time) + self.apresentarRetrospectoGeralUltimos5JogosMandante(time) + self.apresentarRetrospectoGeralUltimos5JogosVisitante(time)
