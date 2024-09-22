@@ -229,40 +229,45 @@ class Brasileirao():
 
     def apresentarRetrospectoGeral(self, time):
         return f"""{time['Time']}
-    Retrospecto geral:
-    {time['Posição']} º - {time['Pontuação']} pontos em {time['Jogos']} jogos ({time['Vitórias']}V/{time['Empates']}E/{time['Derrotas']}D) - {time['Aproveitamento']} % de aproveitamento
-    Gols pró: {time['Gols pró']} - Gols contra: {time['Gols contra']} - Saldo de gols: {time['Saldo gols']}
-    Ranking ataque: {time['Ranking ataque']} - Ranking defesa: {time['Ranking defesa']}
+Retrospecto geral:
+{time['Posição']} º - {time['Pontuação']} pontos em {time['Jogos']} jogos ({time['Vitórias']}V/{time['Empates']}E/{time['Derrotas']}D)
+{time['Aproveitamento']} % de aproveitamento
+Gols pró: {time['Gols pró']} - Gols contra: {time['Gols contra']} - Saldo de gols: {time['Saldo gols']}
+Ranking ataque: {time['Ranking ataque']} - Ranking defesa: {time['Ranking defesa']}
 
-    """
+"""
 
     def apresentarRetrospectoGeralUltimos5Jogos(self,time):
         return f"""Restrospecto últimos 5 jogos
-    Últimos jogos: {time['Ultimos jogos']}
-    Gols pró: {time['Gols ultimos jogos']} - Gols contra: {time['Gols contra ultimos jogos']}
+Últimos jogos: {time['Ultimos jogos']}
+Gols pró: {time['Gols ultimos jogos']} - Gols contra: {time['Gols contra ultimos jogos']}
 
-    """
+"""
 
     def apresentarRetrospectoGeralUltimos5JogosMandante(self, time):
         return f"""Retrospecto mandante:
-    {time['Jogos mandante']} jogos ({time['Vitórias mandante']}V/{time['Empates mandante']}E/{time['Derrotas mandante']}D) - {time['Aproveitamento mandante']}
-    Últimos jogos: {time['Ultimos jogos - Mandante']}
-    Gols pró: {time['Gols ultimos jogos - Mandante']} - Gols contra: {time['Gols contra ultimos jogos - Mandante']}
+{time['Jogos mandante']} jogos ({time['Vitórias mandante']}V/{time['Empates mandante']}E/{time['Derrotas mandante']}D) - {time['Aproveitamento mandante']}
+Últimos jogos: {time['Ultimos jogos - Mandante']}
+Gols pró: {time['Gols ultimos jogos - Mandante']} - Gols contra: {time['Gols contra ultimos jogos - Mandante']}
 
-    """
+"""
 
     def apresentarRetrospectoGeralUltimos5JogosVisitante(self, time):
         return f"""Retrospecto visitante:
-    {time['Jogos visitante']} jogos ({time['Vitórias visitante']}V/{time['Empates visitante']}E/{time['Derrotas visitante']}D) - {time['Aproveitamento visitante']}
-    Últimos jogos: {time['Ultimos jogos - Visitante']}
-    Gols pró: {time['Gols ultimos jogos - Visitante']} - Gols contra: {time['Gols contra ultimos jogos - Visitante']}
+{time['Jogos visitante']} jogos ({time['Vitórias visitante']}V/{time['Empates visitante']}E/{time['Derrotas visitante']}D) - {time['Aproveitamento visitante']}
+Últimos jogos: {time['Ultimos jogos - Visitante']}
+Gols pró: {time['Gols ultimos jogos - Visitante']} - Gols contra: {time['Gols contra ultimos jogos - Visitante']}
 
-    """
+"""
 
     def resumo_geral(self, time):
         return self.apresentarRetrospectoGeral(self.procurarTime(time)) + self.apresentarRetrospectoGeralUltimos5Jogos(self.procurarTime(time)) + self.apresentarRetrospectoGeralUltimos5JogosMandante(self.procurarTime(time)) + self.apresentarRetrospectoGeralUltimos5JogosVisitante(self.procurarTime(time))
     
+    def nomesTimes(self):
+        return self.dfClassificacao['Time'].to_list()
+    
 #br = Brasileirao()
+#print(br.nomesTimes())
 #print(br.dfClassificacao['Time'].values)
 #print(br.resumo_geral('Bahia'))
 #print(br.resumo_geral('Atlético-MG'))
