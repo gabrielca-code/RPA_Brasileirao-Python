@@ -24,8 +24,8 @@ class Brasileirao():
 
             self.dfClassificacao = self.transformacoesInterDataFrames(self.dfClassificacao, self.dfJogos)
 
-            print(self.resumo_geral(self.procurarTime(self.dfClassificacao, 'Fluminense')))
-            print(self.resumo_geral(self.procurarTime(self.dfClassificacao, 'São Paulo')))
+            # print(self.resumo_geral(self.procurarTime(self.dfClassificacao, 'Fluminense')))
+            # print(self.resumo_geral(self.procurarTime(self.dfClassificacao, 'São Paulo')))
         else:
             print(f"Erro, código {paginaRequisicao.status_code}")    
 
@@ -224,8 +224,8 @@ class Brasileirao():
         dfClassificacao['Gols contra ultimos jogos - Visitante'] = dfClassificacao['Time'].apply(self.ultimos_jogos_golsc_visitante)
         return dfClassificacao
 
-    def procurarTime(self, dfClassificacao, nomeTime):
-        return dfClassificacao[dfClassificacao['Time'] == nomeTime].iloc[0]
+    def procurarTime(self, nomeTime):
+        return self.dfClassificacao[self.dfClassificacao['Time'] == nomeTime].iloc[0]
 
     def apresentarRetrospectoGeral(self, time):
         return f"""{time['Time']}
@@ -260,4 +260,9 @@ class Brasileirao():
     """
 
     def resumo_geral(self, time):
-        return self.apresentarRetrospectoGeral(time) + self.apresentarRetrospectoGeralUltimos5Jogos(time) + self.apresentarRetrospectoGeralUltimos5JogosMandante(time) + self.apresentarRetrospectoGeralUltimos5JogosVisitante(time)
+        return self.apresentarRetrospectoGeral(self.procurarTime(time)) + self.apresentarRetrospectoGeralUltimos5Jogos(self.procurarTime(time)) + self.apresentarRetrospectoGeralUltimos5JogosMandante(self.procurarTime(time)) + self.apresentarRetrospectoGeralUltimos5JogosVisitante(self.procurarTime(time))
+    
+#br = Brasileirao()
+#print(br.dfClassificacao['Time'].values)
+#print(br.resumo_geral('Bahia'))
+#print(br.resumo_geral('Atlético-MG'))
