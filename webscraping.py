@@ -2,26 +2,42 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
+# df para a classificação na tabela do campeonato
 dfClassificacao = pd.DataFrame()
+# df para resultados dos jogos do time
 dfJogos = pd.DataFrame()
 
+# Classe principal do scrapping
 class Brasileirao():
-
+    # Construtor padrão da classe
     def __init__(self):
+        # Request na página da gazeta esportiva
         paginaRequisicao = self.requisicaoPagina('https://www.gazetaesportiva.com/campeonatos/brasileiro-serie-a/')
+
+        # Valida se o request foi bem sucedido
         if paginaRequisicao.status_code == 200:
+            # Converte a requisição para HTML
             conteudoHTMLPagina = self.converterRequisicaoParaHTML(paginaRequisicao)
 
+            # Extrai os jogos do HTML
             htmlJogos = self.extrairJogosHTML(conteudoHTMLPagina)
+            # Transforma em dicionario
             dictJogos = self.criarDicionarioJogos(htmlJogos)
+            # Converte em df
             self.dfJogos = self.converterDicionarioEmDataFrame(dictJogos)
+            # Trata a base em df
             self.dfJogos = self.transformacoesDataFrameJogos(self.dfJogos)
 
+            # Extrai os jogos do HTML
             htmlClassificacao = self.extrairClassificacaoHTML(conteudoHTMLPagina)
+            # Transforma em dicionario
             dictClassificacao = self.criarDicionarioClassificacao(htmlClassificacao)
+            # Converte em df
             self.dfClassificacao = self.converterDicionarioEmDataFrame(dictClassificacao)
+            # Trata a base em df
             self.dfClassificacao = self.transformacoesDataFrameClassificacao(self.dfClassificacao)
 
+            # Pega informações dos jogos para inserir no data frame de classificação
             self.dfClassificacao = self.transformacoesInterDataFrames(self.dfClassificacao, self.dfJogos)
 
             # print(self.resumo_geral(self.procurarTime(self.dfClassificacao, 'Fluminense')))
@@ -265,9 +281,3 @@ Gols pró: {time['Gols ultimos jogos - Visitante']} - Gols contra: {time['Gols c
     
     def nomesTimes(self):
         return self.dfClassificacao['Time'].to_list()
-    
-#br = Brasileirao()
-#print(br.nomesTimes())
-#print(br.dfClassificacao['Time'].values)
-#print(br.resumo_geral('Bahia'))
-#print(br.resumo_geral('Atlético-MG'))
